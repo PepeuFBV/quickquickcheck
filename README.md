@@ -64,6 +64,7 @@ And many more...
 
 For contributions, please fork the repository and submit a pull request. Contributions are welcome, whether it's fixing bugs, improving documentation, or adding new features.
 
+[Contributing Guidelines](CONTRIBUTING)
 
 ## License
 
