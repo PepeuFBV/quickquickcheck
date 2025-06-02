@@ -28,24 +28,21 @@ readFileLines path = do
 findAnnotationsAndFunctions :: [String] -> [(String, String)]
 findAnnotationsAndFunctions [] = []
 findAnnotationsAndFunctions (currentLine : otherLines) =
-  putStrLn ("Processing line: " ++ currentLine) `seq`
-    case parseAnnotation currentLine of
-      Just annotation ->
-        putStrLn ("Found annotation: " ++ annotation) `seq`
-          case otherLines of
-            (functionLine : moreOtherLines) ->
-              if isFunction functionLine
-                then
-                  putStrLn ("Matched function: " ++ functionLine) `seq`
-                    (annotation, functionLine) : findAnnotationsAndFunctions moreOtherLines
-                else findAnnotationsAndFunctions otherLines
-            [] -> findAnnotationsAndFunctions otherLines
-      Nothing -> findAnnotationsAndFunctions otherLines
+  case parseAnnotation currentLine of
+    Just annotation ->
+      case otherLines of
+        (functionLine : moreOtherLines) ->
+          if isFunction functionLine
+            then
+              (annotation, functionLine) : findAnnotationsAndFunctions moreOtherLines
+            else findAnnotationsAndFunctions otherLines
+        [] -> findAnnotationsAndFunctions otherLines
+    Nothing -> findAnnotationsAndFunctions otherLines
 
 -- parses the annotation from the line, extracting everything AFTER "qqc:"
 parseAnnotation :: String -> Maybe String
 parseAnnotation line =
-  let found = "qqc:"
+  let found = "@quickcheck"
       ws = words line -- split the line into words
    in case dropWhile (/= found) ws of
         (_ : rest) | not (null rest) -> Just (unwords rest) -- if the found word is not the last one, return the rest of the line
