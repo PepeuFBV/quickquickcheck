@@ -1,0 +1,33 @@
+# Contributing Guidelines
+
+Thank you for your interest in contributing to this project!
+
+## Pull Requests
+
+- Fork the repository and create your branch from `main`.
+- Make your changes with clear, descriptive commit messages.
+- Before submitting a pull request (PR), ensure your code passes all tests and lint checks.
+- Open a PR with a clear description of your changes and reference any related issues.
+
+## Changelog
+
+- **Update the `CHANGELOG.md` file** with a summary of your changes in the "Unreleased" section.
+- Follow the existing changelog format for consistency.
+
+## Review Process
+
+- Your PR will be reviewed by maintainers.
+- Please respond to feedback and make any requested changes.
+- Once approved, your PR will be merged.
+
+Thank you for helping improve this project!
+
+## Issues
+
+If you find a bug or have a feature request, please open an issue in the repository. Provide as much detail as possible, including:
+
+- Steps to reproduce the issue
+- Expected behavior
+- Actual behavior
+- Any relevant logs or error messages
+- Environment details (e.g., OS, version of the project)
