@@ -3,6 +3,6 @@ module Test
   )
 where
 
--- @quickcheck x -> x + 1
+-- @quickcheck plusOne(x) == x + 1
 plusOne :: Integer -> Integer
 plusOne x = x + 1

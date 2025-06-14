@@ -12,3 +12,8 @@
 ## 0.1.1.1 -- 02/06/2025 -- Pedro Figueira
 
 * Changed the annotation format to use `-- @quickcheck` instead of `-- qqc:`.
+
+## 0.1.1.2 -- 05//06/2025 -- Pedro Figueira
+
+* Bug fix for missing cabal file in the package.
+* Fixed quickcheck call in Test.hs file to the correct usage.
