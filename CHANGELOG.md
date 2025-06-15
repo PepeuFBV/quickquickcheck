@@ -13,7 +13,11 @@
 
 * Changed the annotation format to use `-- @quickcheck` instead of `-- qqc:`.
 
-## 0.1.1.2 -- 05//06/2025 -- Pedro Figueira
+## 0.1.1.2 -- 05/06/2025 -- Pedro Figueira
 
 * Bug fix for missing cabal file in the package.
 * Fixed quickcheck call in Test.hs file to the correct usage.
+
+## 0.1.2.0 -- 14/06/2025 -- Pedro Figueira
+
+* Added support for multiple annotations (line by line) above the function declaration.

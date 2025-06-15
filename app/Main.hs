@@ -4,7 +4,7 @@ import FileReader (fileRead)
 
 main :: IO ()
 main = do
-  let path = "app/theorems/test.hs"
+  let path = "app/theorems/Test.hs"
   receiveAnnotationsAndFunctions path
 
 receiveAnnotationsAndFunctions :: FilePath -> IO ()
