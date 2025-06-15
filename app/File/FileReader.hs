@@ -3,14 +3,17 @@ module FileReader (fileRead) where
 import System.IO (IOMode (ReadMode), hGetLine, hIsEOF, openFile)
 import System.IO.Error (catchIOError)
 
-fileRead :: String -> IO (Either String [(String, String)])
+-- reads the file at the given path and returns a list of pairs, where each pair contains a function name and all its corresponding annotations
+fileRead :: String -> IO (Either String [(String, [String])])
 fileRead path =
   catchIOError
     (do
       fileLines <- readFileLines path
-      return (Right (findAnnotationsAndFunctions fileLines))
-    ) -- no errors
-    (\e -> return (Left ("Error reading file: " ++ show e))) -- error string
+      let pairs = findAnnotationsAndFunctions fileLines
+          grouped = [(func, anns) | (anns, func) <- pairs] -- groups the annotations with their corresponding functions
+      return (Right grouped)
+    )
+    (\e -> return (Left ("Error reading file: " ++ show e)))
 
 -- reads the file line by line and returns a list of lines
 readFileLines :: String -> IO [String]
@@ -26,29 +29,25 @@ readFileLines path = do
             loop (line : list)
   loop []
 
--- finds the annotations and functions in the lines TODO: fix here
-findAnnotationsAndFunctions :: [String] -> [(String, String)]
-findAnnotationsAndFunctions [] = []
-findAnnotationsAndFunctions (currentLine : otherLines) =
-  case parseAnnotation currentLine of
-    Just annotation ->
-      case otherLines of
-        (functionLine : moreOtherLines) ->
-          if isFunction functionLine
-            then
-              (annotation, functionLine) : findAnnotationsAndFunctions moreOtherLines
-            else findAnnotationsAndFunctions otherLines
-        [] -> findAnnotationsAndFunctions otherLines
-    Nothing -> findAnnotationsAndFunctions otherLines
+-- finds the annotations and functions in the lines
+findAnnotationsAndFunctions :: [String] -> [([String], String)]
+findAnnotationsAndFunctions = go []
+  where
+    go _ [] = []
+    go anns (line:rest) =
+      case parseAnnotation line of
+        Just ann -> go (anns ++ [ann]) rest
+        Nothing ->
+          if isFunction line && not (null anns) -- if the line is a function definition and there are annotations collected
+            then (anns, line) : go [] rest -- save the current annotations and reset the list
+            else go [] rest -- continue with the next line (next line to be a function or annotation)
 
 -- parses the annotation from the line, extracting everything after the "@quickcheck" annotation
 parseAnnotation :: String -> Maybe String
 parseAnnotation line =
   case dropWhile (/= "@quickcheck") (words line) of
-    foundWordAndRest ->
-      if length foundWordAndRest > 1
-        then Just (unwords (tail foundWordAndRest)) -- if "@quickcheck" is not the last word, return the rest
-        else Nothing
+    (_:rest) | not (null rest) -> Just (unwords rest) -- returns the annotation without the "@quickcheck" part
+    _ -> Nothing
 
 -- checks if the line is a function definition
 isFunction :: String -> Bool
