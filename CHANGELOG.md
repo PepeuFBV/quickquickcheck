@@ -21,3 +21,7 @@
 ## 0.1.2.0 -- 14/06/2025 -- Pedro Figueira
 
 * Added support for multiple annotations (line by line) above the function declaration.
+
+## 0.1.3.0 -- 26/06/2025 -- Felipe Pereira
+
+* QuickCheck implementation, using the `hint` library to load the module and run the tests.
