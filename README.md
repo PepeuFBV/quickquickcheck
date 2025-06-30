@@ -8,57 +8,79 @@ quickquickcheck is a tool for Haskell developers that enables an annotation-like
 - **Automatic Discovery**: Scans your Haskell source files for annotated functions and runs the desired QuickCheck tests.
 - **Seamless Integration**: No need to modify your function signatures or add boilerplate code—just annotate and test.
 
+## Requirements
+
+- GHC >= 9.6
+- Stack >= 2.7
+- QuickCheck >= 2.14
+
 ## Example Usage with Annotation Styles
 
-With `quickquickcheck`, you can use annotation comments to specify properties directly above your function definitions. The annotation uses a mathematical property format, such as `f(x) == g(x)`, to describe the expected behavior. Here are some example styles of annotations you can use:
+Check the `theorems` directory for examples of how to use quickquickcheck quickly and effectively.
 
-- **Inequality**: `-- @quickcheck increment(x) > x`
-- **Equality**: `-- @quickcheck double(x) == x + x`
-- **Property on lists**: `-- @quickcheck listLength(xs) >= 0`
-- **Commutativity**: `-- @quickcheck addCommutative(x, y) == addCommutative(y, x)`
-- **Associativity**: `-- @quickcheck addAssociative(x, y, z) == addAssociative(x, addAssociative(y, z))`
+## Development
 
-### Example 1: Increment Function
+To get started with quickquickcheck, clone the repository and run the following commands:
 
-```haskell
--- @quickcheck increment(x) > x
-increment :: Int -> Int
-increment x = x + 1
+```bash
+git clone https://github.com/PepeuFBV/quickquickcheck.git
+cd quickquickcheck
 ```
 
-### Example 2: Double Function
+Download the project dependencies:
 
-```haskell
--- @quickcheck double(x) == x + x
-double :: Int -> Int
-double x = x * 2
+```bash
+# install the necessary dependencies
+cabal update
+
+# project's global dependencies
+cabal install --lib QuickCheck --package-env .
 ```
 
-### Example 3: List Length Function
+Run the project:
 
-```haskell
--- @quickcheck listLength(xs) >= 0
-listLength :: [a] -> Int
-listLength xs = length xs
+```bash
+cabal run
 ```
 
-### Example 4: Commutative Addition
+This will allow you to contribute to the project, run tests, and explore the codebase.
 
-```haskell
--- @quickcheck addCommutative(x, y) == addCommutative(y, x)
-addCommutative :: Int -> Int -> Int
-addCommutative x y = x + y
+## Running Tests
+
+To run the tests for quickquickcheck, you can use the following command:
+
+```bash
+stack build
 ```
 
-### Example 5: Associative Addition
+This will compile the project, now you need to install the project in the PATH:
 
-```haskell
--- @quickcheck addAssociative(x, y, z) == addAssociative(x, addAssociative(y, z))
-addAssociative :: Int -> Int -> Int -> Int
-addAssociative x y z = x + (y + z)
+```bash
+stack install
 ```
 
-And many more...
+Then, install `QuickCheck` globally if you haven't done so already:
+
+```bash
+stack install QuickCheck
+```
+
+Now, you can execute the quickquickcheck command on your Haskell files:
+
+```bash
+stack exec quickquickcheck /path/to/your/file.hs
+```
+
+It has to be done through `stack exec` because the project depends on the `hint` library, which allows dynamic loading of Haskell modules at runtime.
+
+> [!WARNING]
+> Make sure your `~/.local/bin` is in your `PATH` environment variable, as this is where the `quickquickcheck` executable will be installed. If not, add this line to your `~/.bashrc` or `~/.zshrc`:
+> 
+> export PATH="$HOME/.local/bin:$PATH"
+
+## AI usage
+
+AI was used to help writting this README file, as well as to help understanding the process of making this project an executable Haskell program and understanding how the `hint` library works and should be used in conjunction with `QuickCheck`.
 
 ## Contributing
 

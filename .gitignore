@@ -1,3 +1,7 @@
 
 /dist-newstyle
 /.vscode
+
+# Generated files 
+.ghc.*
+/.stack-work
