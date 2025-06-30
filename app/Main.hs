@@ -2,12 +2,16 @@ module Main where
 
 import FileReader (fileRead)
 import QuickCheckExecute (anotacaoParaComando, executaQuickCheckComHint)
+import System.Environment (getArgs)
 
 main :: IO ()
 main = do
-  let path = "app/theorems/Test.hs"
-  receiveAnnotationsAndFunctions path
-  transformaEmQuickCheck path
+  args <- getArgs
+  case args of
+    [path] -> do
+      receiveAnnotationsAndFunctions path
+      transformaEmQuickCheck path
+    _ -> putStrLn "Uso: quickquickcheck <arquivo.hs>"
 
 -- Apenas imprime o conteúdo lido (opcional)
 receiveAnnotationsAndFunctions :: FilePath -> IO ()
@@ -35,4 +39,4 @@ transformaEmQuickCheck path = do
       -- gera o comando QuickCheck usando sua função com a nova lógica
       let cmd = anotacaoParaComando ann
       putStrLn $ "  Executando: " ++ cmd
-      executaQuickCheckComHint cmd
+      executaQuickCheckComHint path cmd
