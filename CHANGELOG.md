@@ -29,3 +29,7 @@
 ## 0.1.4.0 -- 30/06/2025 -- Pedro Figueira
 
 * Support for running project on any file via stack.
+
+## 0.1.4.1 -- 30/06/2025 -- Pedro Figueira
+
+* Result print fixes
