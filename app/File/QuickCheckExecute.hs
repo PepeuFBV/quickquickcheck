@@ -14,7 +14,7 @@ executaQuickCheckComHint :: String -> IO ()
 executaQuickCheckComHint comando = do                                                       -- "comando" é o comando no formato do quickcheck que ele executará. Esse comando virá da função anotacaoParaComando
   resultado <- runInterpreter $ do                                                             --
 -- *ESSAS 4 LINHAS ABAIXO PROVAVELMENTE SERÃO ALTERADAS AO TRANSFORMAR EM LIB*
-    loadModules ["app/theorems/Test.hs"]                                                    -- Carrega o módulo de testes como script
+    loadModules ["app/theorems/Quickquickcheck.hs"]                                                    -- Carrega o módulo de testes como script
     setTopLevelModules ["Test"]                                                             -- Define o módulo de testes como "usável" (vide documentação hint)
     setImports ["Prelude", "Test.QuickCheck", "Test"]                                       -- Define os imports: Prelude (basicamente tudo do haskell), Quickcheck e onde estão as funções para teste
     interpret comando (as :: IO ())                                                             

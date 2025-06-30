@@ -1,4 +1,4 @@
-module Test
+module Quickquickcheck
   ( plusOne, incremento, dobro, addCommutativa, addAssociativa, multComutativa, identidade, quadradoSemprePositivo, dobroErrado,
   fatorial, estaVazio, stringLength, reverseConcat, ePar, cabecaSingleton, somaPar, ordenarPreservaTamanho, quicksort
   )

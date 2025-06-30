@@ -5,7 +5,7 @@ import QuickCheckExecute (anotacaoParaComando, executaQuickCheckComHint)
 
 main :: IO ()
 main = do
-  let path = "app/theorems/Test.hs"
+  let path = "app/theorems/Quickquickcheck.hs"
   receiveAnnotationsAndFunctions path
   transformaEmQuickCheck path
 
