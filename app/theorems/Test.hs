@@ -1,6 +1,6 @@
 module Test
   ( plusOne, incremento, dobro, addCommutativa, addAssociativa, multComutativa, identidade, quadradoSemprePositivo, dobroErrado,
-  fatorial, estaVazio, stringLength, reverseConcat, ePar, cabecaSingleton, somaPar, ordenarPreservaTamanho, quicksort
+  fatorial, estaVazio, stringLength, reverseConcat, ePar, cabecaSingleton, ordenarPreservaTamanho, quicksort
   )
 where
 
@@ -30,13 +30,13 @@ addCommutativa x y = x + y
 -- Soma dois inteiros.
 -- O teste verifica a propriedade comutativa da adição: `x + y == y + x`.
 
--- @quickcheck addAssociativa(x, y, z) == addAssociativa(x, addAssociative(y, z))
+-- @quickcheck addAssociativa(x, y, z) == addAssociativa(y, z, x)
 addAssociativa :: Int -> Int -> Int -> Int
 addAssociativa x y z = x + (y + z)
 -- Soma três inteiros com parênteses à direita.
 -- O teste confere se a propriedade associativa se mantém
 
--- @quickcheck multCommutativa(x, y) == multCommutativa(y, x)
+-- @quickcheck multComutativa(x, y) == y * x
 multComutativa :: Int -> Int -> Int
 multComutativa x y = x * y
 -- Multiplica dois inteiros.
@@ -48,7 +48,7 @@ identidade x = x + 0
 -- Retorna o mesmo número que recebe.
 -- O teste verifica se somar 0 mantém o valor original (identidade da adição).
 
--- @quickcheck squareNonNegative(x) >= 0
+-- @quickcheck quadradoSemprePositivo(x) >= 0
 quadradoSemprePositivo :: Int -> Int
 quadradoSemprePositivo x = x * x
 -- Retorna o quadrado de um número.
@@ -98,12 +98,6 @@ cabecaSingleton :: Int -> Int
 cabecaSingleton x = head [x]
 -- Retorna o primeiro elemento de uma lista contendo apenas `x`.
 -- O teste valida que `head [x]` realmente retorna `x`.
-
--- @quickcheck somaPar(x, y) == x + y
-somaPar :: (Int, Int) -> Int
-somaPar (x, y) = x + y
--- Soma os dois elementos de uma tupla.
--- O teste verifica que `somaPar (x, y)` retorna o mesmo valor de `x + y`.
 
 -- @quickcheck ordenarPreservaTamanho(xs) == length xs
 ordenarPreservaTamanho :: [Int] -> Int

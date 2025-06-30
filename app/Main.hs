@@ -9,7 +9,7 @@ main = do
   receiveAnnotationsAndFunctions path
   transformaEmQuickCheck path
 
--- Identifica as annotations e funções
+-- Apenas imprime o conteúdo lido (opcional)
 receiveAnnotationsAndFunctions :: FilePath -> IO ()
 receiveAnnotationsAndFunctions path = do
   result <- fileRead path
@@ -17,20 +17,22 @@ receiveAnnotationsAndFunctions path = do
     Left err -> putStrLn $ "Error: " ++ err
     Right fileLine -> mapM_ print fileLine
 
--- Parseia para um comando do quickcheck
+-- Para cada função e suas anotações, gera e executa o quickCheck
 transformaEmQuickCheck :: FilePath -> IO ()
 transformaEmQuickCheck path = do
   result <- fileRead path
   case result of
     Left err -> putStrLn $ "Error: " ++ err
-    Right functions -> mapM_ processFunction functions
+    Right funcoesEAnotacoes -> mapM_ processFunction funcoesEAnotacoes
   where
+    processFunction :: (String, [String]) -> IO ()
     processFunction (funcSig, annotations) = do
       putStrLn $ "\nFunção: " ++ funcSig
       mapM_ processAnnotation annotations
 
+    processAnnotation :: String -> IO ()
     processAnnotation ann = do
+      -- gera o comando QuickCheck usando sua função com a nova lógica
       let cmd = anotacaoParaComando ann
       putStrLn $ "  Executando: " ++ cmd
       executaQuickCheckComHint cmd
-
