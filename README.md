@@ -37,6 +37,41 @@ Run the project:
 cabal run
 ```
 
+This will allow you to contribute to the project, run tests, and explore the codebase.
+
+## Running Tests
+
+To run the tests for quickquickcheck, you can use the following command:
+
+```bash
+stack build
+```
+
+This will compile the project, now you need to install the project in the PATH:
+
+```bash
+stack install
+```
+
+Then, install `QuickCheck` globally if you haven't done so already:
+
+```bash
+stack install QuickCheck
+```
+
+Now, you can execute the quickquickcheck command on your Haskell files:
+
+```bash
+stack exec quickquickcheck /path/to/your/file.hs
+```
+
+It has to be done through `stack exec` because the project depends on the `hint` library, which allows dynamic loading of Haskell modules at runtime.
+
+> [!WARNING]
+> Make sure your `~/.local/bin` is in your `PATH` environment variable, as this is where the `quickquickcheck` executable will be installed. If not, add this line to your `~/.bashrc` or `~/.zshrc`:
+> 
+> export PATH="$HOME/.local/bin:$PATH"
+
 ## AI usage
 
 AI was used to help writting this README file, as well as to help understanding the process of making this project an executable Haskell program.
