@@ -25,3 +25,7 @@
 ## 0.1.3.0 -- 26/06/2025 -- Felipe Pereira
 
 * QuickCheck implementation, using the `hint` library to load the module and run the tests.
+
+## 0.1.4.0 -- 30/06/2025 -- Pedro Figueira
+
+* Support for running project on any file via stack.
