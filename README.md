@@ -35,55 +35,11 @@ cabal run
 
 ## Example Usage with Annotation Styles
 
-With `quickquickcheck`, you can use annotation comments to specify properties directly above your function definitions. The annotation uses a mathematical property format, such as `f(x) == g(x)`, to describe the expected behavior. Here are some example styles of annotations you can use:
+Check the `theorems` directory for examples of how to use quickquickcheck quickly and effectively.
 
-- **Inequality**: `-- @quickcheck increment(x) > x`
-- **Equality**: `-- @quickcheck double(x) == x + x`
-- **Property on lists**: `-- @quickcheck listLength(xs) >= 0`
-- **Commutativity**: `-- @quickcheck addCommutative(x, y) == addCommutative(y, x)`
-- **Associativity**: `-- @quickcheck addAssociative(x, y, z) == addAssociative(x, addAssociative(y, z))`
+## AI usage
 
-### Example 1: Increment Function
-
-```haskell
--- @quickcheck increment(x) > x
-increment :: Int -> Int
-increment x = x + 1
-```
-
-### Example 2: Double Function
-
-```haskell
--- @quickcheck double(x) == x + x
-double :: Int -> Int
-double x = x * 2
-```
-
-### Example 3: List Length Function
-
-```haskell
--- @quickcheck listLength(xs) >= 0
-listLength :: [a] -> Int
-listLength xs = length xs
-```
-
-### Example 4: Commutative Addition
-
-```haskell
--- @quickcheck addCommutative(x, y) == addCommutative(y, x)
-addCommutative :: Int -> Int -> Int
-addCommutative x y = x + y
-```
-
-### Example 5: Associative Addition
-
-```haskell
--- @quickcheck addAssociative(x, y, z) == addAssociative(x, addAssociative(y, z))
-addAssociative :: Int -> Int -> Int -> Int
-addAssociative x y z = x + (y + z)
-```
-
-And many more...
+AI was used to help writting this README file, as well as to help understanding the process of making this project an executable Haskell program.
 
 ## Contributing
 
