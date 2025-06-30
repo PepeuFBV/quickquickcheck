@@ -8,6 +8,12 @@ quickquickcheck is a tool for Haskell developers that enables an annotation-like
 - **Automatic Discovery**: Scans your Haskell source files for annotated functions and runs the desired QuickCheck tests.
 - **Seamless Integration**: No need to modify your function signatures or add boilerplate code—just annotate and test.
 
+## Requirements
+
+- GHC >= 9.6
+- Stack >= 2.7
+- QuickCheck >= 2.14
+
 ## Example Usage with Annotation Styles
 
 Check the `theorems` directory for examples of how to use quickquickcheck quickly and effectively.
@@ -74,7 +80,7 @@ It has to be done through `stack exec` because the project depends on the `hint`
 
 ## AI usage
 
-AI was used to help writting this README file, as well as to help understanding the process of making this project an executable Haskell program.
+AI was used to help writting this README file, as well as to help understanding the process of making this project an executable Haskell program and understanding how the `hint` library works and should be used in conjunction with `QuickCheck`.
 
 ## Contributing
 
