@@ -2,6 +2,16 @@
 
 quickquickcheck is a tool for Haskell developers that enables an annotation-like system for running property-based tests using the QuickCheck library. By placing special annotations in comments above your function declarations, quickquickcheck automatically discovers these annotations and runs the specified QuickCheck properties on the corresponding functions.
 
+## Features
+
+- **Annotation-based Testing**: Define which QuickCheck properties to run using simple comment annotations above your functions.
+- **Automatic Discovery**: Scans your Haskell source files for annotated functions and runs the desired QuickCheck tests.
+- **Seamless Integration**: No need to modify your function signatures or add boilerplate code—just annotate and test.
+
+## Example Usage with Annotation Styles
+
+Check the `theorems` directory for examples of how to use quickquickcheck quickly and effectively.
+
 ## Development
 
 To get started with quickquickcheck, clone the repository and run the following commands:
@@ -26,16 +36,6 @@ Run the project:
 ```bash
 cabal run
 ```
-
-## Features
-
-- **Annotation-based Testing**: Define which QuickCheck properties to run using simple comment annotations above your functions.
-- **Automatic Discovery**: Scans your Haskell source files for annotated functions and runs the desired QuickCheck tests.
-- **Seamless Integration**: No need to modify your function signatures or add boilerplate code—just annotate and test.
-
-## Example Usage with Annotation Styles
-
-Check the `theorems` directory for examples of how to use quickquickcheck quickly and effectively.
 
 ## AI usage
 
