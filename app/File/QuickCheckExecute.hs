@@ -1,9 +1,8 @@
 module QuickCheckExecute (anotacaoParaComando, executaQuickCheckComHint, contaArgumentos) where
 
-
 import Language.Haskell.Interpreter
 import Data.Char (isAlpha, isSpace)
-import Data.List (isPrefixOf, isInfixOf, isSuffixOf)
+import Data.List (isPrefixOf, isInfixOf, isSuffixOf, intercalate)
 
 -- FLUXO DO MÓDULO EXECUTE
 
@@ -44,7 +43,8 @@ anotacaoParaComando entrada =
           expressao = ladoEsquerdoFormatado ++ " " ++ operador ++ " " ++ ladoDireitoFormatado
 
           quickcheckExp
-            | numArgs == 1 && isTupla argumentosTexto = "quickCheck (" ++ expressao ++ ")"
+            | numArgs == 1 && isTupla argumentosTexto = "quickCheck (\\(" ++ argumentosParaTupla argumentosTexto ++ ") -> " ++ nomeFuncao ++ " (" ++ argumentosParaTupla argumentosTexto ++ ") " ++ operador ++ " " ++ ladoDireitoFormatado ++ ")"
+            | isTupla argumentosTexto = "quickCheck (\\(" ++ argumentosParaTupla argumentosTexto ++ ") -> " ++ expressao ++ ")"
             | todosVariaveis = "quickCheck (\\ " ++ unwords argumentos ++ " -> " ++ expressao ++ ")"
             | otherwise = "quickCheck (" ++ expressao ++ ")"
 
@@ -97,9 +97,12 @@ detectarChamadaFuncao s =
     _ -> Nothing
 
 -- Formata o lado direito da expressão garantindo parênteses para chamadas aninhadas
-formatarLadoDireito :: String -> String
+formatarLadoDireito :: [Char] -> String
 formatarLadoDireito ladoDireito =
-  case detectarChamadaFuncao ladoDireito of
+  let s = tirarEspacos ladoDireito
+  in if not (null s) && head s == '(' && last s == ')' -- se já tiver parênteses, retorna como está
+     then s
+     else case detectarChamadaFuncao ladoDireito of
     Just (fNome, argsTxt) ->
       let args = separarArgumentos argsTxt 0 "" []
           argsFormatados = map formatarArgumento args
@@ -136,6 +139,9 @@ dividirPorOperador texto operador = procurar "" texto
     procurar antes resto
       | operador `isPrefixOf` resto = (antes, drop (length operador) resto)  -- encontrou
       | otherwise = procurar (antes ++ [head resto]) (tail resto)  -- continua procurando
+
+argumentosParaTupla :: String -> String
+argumentosParaTupla s = intercalate ", " (parseArgs s)
 
 -- Usa de tirarEspaços para todo elemento do argumento
 parseArgs :: String -> [String]
