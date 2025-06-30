@@ -30,7 +30,7 @@ addCommutativa x y = x + y
 -- Soma dois inteiros.
 -- O teste verifica a propriedade comutativa da adição: `x + y == y + x`.
 
--- @quickcheck addAssociativa(x, y, z) == addAssociativa(x, addAssociative(y, z))
+-- @quickcheck addAssociativa(x, y, z) == addAssociativa(x, addAssociativa(y, z))
 addAssociativa :: Int -> Int -> Int -> Int
 addAssociativa x y z = x + (y + z)
 -- Soma três inteiros com parênteses à direita.
