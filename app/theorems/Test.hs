@@ -107,7 +107,7 @@ ordenarPreservaTamanho xs = length (quicksort xs)
 
 
 {- 
-Esta função foi produziaa com o auxílio do ChatGPT, Conforme exigência da disciplina para fins de transparência acadêmica.
+Esta função foi produzida com o auxílio do ChatGPT, conforme exigência da disciplina para fins de transparência acadêmica.
 
 Prompt utilizado:
 "Gere a função do quicksort auxiliar de 'ordenarPreservaTamanho'"
@@ -122,10 +122,9 @@ quicksort (x:xs) = quicksort [y | y <- xs, y <= x]
 {-
   Este bloco de código foi produzido com auxílio do ChatGPT, conforme exigência da disciplina para fins de transparência acadêmica.
 
-  Pompt utilizado:
+  Prompt utilizado:
   "Dê exemplos de funções matemáticas que podem ser testadas com QuickCheck em Haskell. 
   Exemplos que envolvam propriedades matemáticas, manipulação de listas/strings etc. Me dê ideias que sejam variadas e boas para um projeto.".
 
   A implementação, em sua maioria, do código, ajustes e comentários finais foram realizados manualmente pelo grupo.
 -}
-
