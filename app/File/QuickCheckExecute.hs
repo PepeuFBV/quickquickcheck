@@ -1,174 +1,155 @@
-module QuickCheckExecute (anotacaoParaComando, executaQuickCheckComHint, contaArgumentos) where
+module QuickCheckExecute (annotationToCommand, runQuickCheckWithHint, countArguments) where
 
 import Language.Haskell.Interpreter
 import Data.Char (isAlpha, isSpace)
 import Data.List (isPrefixOf, isInfixOf, isSuffixOf, intercalate)
 
--- FLUXO DO MÓDULO EXECUTE
-
--- ==================================================================================
--- =  FUNÇÕES PRINCIPAIS                                                            =
--- ==================================================================================
-
-executaQuickCheckComHint :: FilePath -> String -> IO ()
-executaQuickCheckComHint path comando = do                                                       -- "comando" é o comando no formato do quickcheck que ele executará. Esse comando virá da função anotacaoParaComando
-  resultado <- runInterpreter $ do
-    loadModules [path]                                                    -- Carrega o módulo de testes como script
-    setTopLevelModules ["Test"]                                                             -- Define o módulo de testes como "usável" (vide documentação hint)
-    setImports ["Prelude", "Test.QuickCheck", "Test"]                                       -- Define os imports: Prelude (basicamente tudo do haskell), Quickcheck e onde estão as funções para teste
-    interpret comando (as :: IO ())
-  case resultado of
-    Left err     -> putStrLn $ "Erro ao interpretar: " ++ show err
+runQuickCheckWithHint :: FilePath -> String -> IO ()
+runQuickCheckWithHint path command = do
+  result <- runInterpreter $ do
+    loadModules [path]
+    setTopLevelModules ["Test"] -- TODO: change to the module name as the user provides it (only accepts modules named Test for now)
+    setImports ["Prelude", "Test.QuickCheck", "Test"] -- TODO: also fix this ^
+    interpret command (as :: IO ())
+  case result of
+    Left err     -> putStrLn $ "Error interpreting: " ++ show err
     Right action -> action
 
+annotationToCommand :: String -> String
+annotationToCommand input =
+  case detectOperator input of
+    Just operator ->
+      let (leftSide, rightSide) = splitByOperator input operator
+          (functionName, argsWithParens) = span (/= '(') leftSide
+          argumentsText = takeWhile (/= ')') (drop 1 argsWithParens)
+          arguments = parseArgs argumentsText
+          numArgs = countArguments argumentsText
+          allVariables = all isVariable arguments
 
-anotacaoParaComando :: String -> String
-anotacaoParaComando entrada =
-  case detectaOperador entrada of
-    Just operador ->
-      let (ladoEsquerdo, ladoDireito) = dividirPorOperador entrada operador
-          (nomeFuncao, argsComParenteses) = span (/= '(') ladoEsquerdo
-          argumentosTexto = takeWhile (/= ')') (drop 1 argsComParenteses)
-          argumentos = parseArgs argumentosTexto
-          numArgs = contaArgumentos argumentosTexto
-          todosVariaveis = all isVariavel argumentos
+          -- formats the left side in curried style: "f a b c"
+          formattedLeftSide = unwords (functionName : arguments)
 
-          -- Monta a expressão esquerda no estilo curried: "f a b c"
-          ladoEsquerdoFormatado = unwords (nomeFuncao : argumentos)
+          -- formats the right side, respecting nested calls
+          formattedRightSide = formatRightSide rightSide
 
-          -- Monta o lado direito formatado, respeitando chamadas aninhadas
-          ladoDireitoFormatado = formatarLadoDireito ladoDireito
-
-          expressao = ladoEsquerdoFormatado ++ " " ++ operador ++ " " ++ ladoDireitoFormatado
+          expression = formattedLeftSide ++ " " ++ operator ++ " " ++ formattedRightSide
 
           quickcheckExp
-            | numArgs == 1 && isTupla argumentosTexto = "quickCheck (\\(" ++ argumentosParaTupla argumentosTexto ++ ") -> " ++ nomeFuncao ++ " (" ++ argumentosParaTupla argumentosTexto ++ ") " ++ operador ++ " " ++ ladoDireitoFormatado ++ ")"
-            | isTupla argumentosTexto = "quickCheck (\\(" ++ argumentosParaTupla argumentosTexto ++ ") -> " ++ expressao ++ ")"
-            | todosVariaveis = "quickCheck (\\ " ++ unwords argumentos ++ " -> " ++ expressao ++ ")"
-            | otherwise = "quickCheck (" ++ expressao ++ ")"
+            | numArgs == 1 && isTuple argumentsText = "quickCheck (\\(" ++ argumentsToTuple argumentsText ++ ") -> " ++ functionName ++ " (" ++ argumentsToTuple argumentsText ++ ") " ++ operator ++ " " ++ formattedRightSide ++ ")"
+            | isTuple argumentsText = "quickCheck (\\(" ++ argumentsToTuple argumentsText ++ ") -> " ++ expression ++ ")"
+            | allVariables = "quickCheck (\\ " ++ unwords arguments ++ " -> " ++ expression ++ ")"
+            | otherwise = "quickCheck (" ++ expression ++ ")"
 
       in quickcheckExp
 
-    Nothing -> error $ "Anotação inválida para quickcheck: " ++ entrada
+    Nothing -> error $ "Invalid annotation for quickcheck: " ++ input
 
+-- counts how many arguments are in the text, splitting by comma only at zero parenthesis level; also treats tuples as multiple arguments
+countArguments :: String -> Int
+countArguments s =
+  let args = splitArguments s 0 "" []
+  in sum (map countInString args)
 
-
--- Conta quantos argumentos estão no texto, separando por vírgula só no nível zero de parênteses
--- Também trata tuplas como múltiplos argumentos
-contaArgumentos :: String -> Int
-contaArgumentos s =
-  let args = separarArgumentos s 0 "" []
-  in sum (map contarNaString args)
-
--- Verifica se o argumento é uma tupla (ex: "(x, y)")
-isTupla :: String -> Bool
-isTupla str =
-  let s = tirarEspacos str
+-- checks if the argument is a tuple (e.g., "(x, y)")
+isTuple :: String -> Bool
+isTuple str =
+  let s = trimSpaces str
   in head s == '(' && last s == ')' && ',' `elem` s
 
+-- helper function that splits arguments, even with tuples
+splitArguments :: String -> Int -> String -> [String] -> [String]
+splitArguments [] _ acc accs = reverse (reverse acc : accs)
+splitArguments (c:cs) level acc accs
+  | c == ',' && level == 0 = splitArguments cs level "" (reverse acc : accs)
+  | c == '(' = splitArguments cs (level + 1) (c : acc) accs
+  | c == ')' = splitArguments cs (level - 1) (c : acc) accs
+  | otherwise = splitArguments cs level (c : acc) accs
 
--- Função auxiliar que separa os argumentos mesmo com tuplas
-separarArgumentos :: String -> Int -> String -> [String] -> [String]
-separarArgumentos [] _ acc accs = reverse (reverse acc : accs)
-separarArgumentos (c:cs) nivel acc accs
-  | c == ',' && nivel == 0 = separarArgumentos cs nivel "" (reverse acc : accs)
-  | c == '(' = separarArgumentos cs (nivel + 1) (c : acc) accs
-  | c == ')' = separarArgumentos cs (nivel - 1) (c : acc) accs
-  | otherwise = separarArgumentos cs nivel (c : acc) accs
-
--- Conta os "elementos" (variáveis) de um argumento
-contarNaString :: String -> Int
-contarNaString str
-  | "(" `isPrefixOf` tirarEspacos str && ")" `isSuffixOf` tirarEspacos str =
-      length $ separarArgumentos (init (tail (tirarEspacos str))) 0 "" []
+-- counts the "elements" (variables) of an argument
+countInString :: String -> Int
+countInString str
+  | "(" `isPrefixOf` trimSpaces str && ")" `isSuffixOf` trimSpaces str =
+      length $ splitArguments (init (tail (trimSpaces str))) 0 "" []
   | otherwise = 1
 
--- Detecta uma chamada do tipo nomeFuncao(args)
--- Retorna Just (nomeFuncao, argumentosComoString) ou Nothing
-detectarChamadaFuncao :: String -> Maybe (String, String)
-detectarChamadaFuncao s =
-  let s' = tirarEspacos s
-      (nome, resto) = span (`notElem` " ()") s'
-  in case resto of
-    ('(':restoArgs) ->
-      let argsTxt = takeWhile (/= ')') restoArgs
-      in Just (nome, argsTxt)
+-- detects a function call of the form functionName(args)
+-- returns Just (functionName, argumentsAsString) or Nothing
+detectFunctionCall :: String -> Maybe (String, String)
+detectFunctionCall s =
+  let s' = trimSpaces s
+      (name, rest) = span (`notElem` " ()") s'
+  in case rest of
+    ('(':restArgs) ->
+      let argsTxt = takeWhile (/= ')') restArgs
+      in Just (name, argsTxt)
     _ -> Nothing
 
--- Formata o lado direito da expressão garantindo parênteses para chamadas aninhadas
-formatarLadoDireito :: [Char] -> String
-formatarLadoDireito ladoDireito =
-  let s = tirarEspacos ladoDireito
-  in if not (null s) && head s == '(' && last s == ')' -- se já tiver parênteses, retorna como está
+-- formats the right side of the expression, ensuring parentheses for nested calls
+formatRightSide :: [Char] -> String
+formatRightSide rightSide =
+  let s = trimSpaces rightSide
+  in if not (null s) && head s == '(' && last s == ')'
      then s
-     else case detectarChamadaFuncao ladoDireito of
-    Just (fNome, argsTxt) ->
-      let args = separarArgumentos argsTxt 0 "" []
-          argsFormatados = map formatarArgumento args
-          argsStr = unwords argsFormatados
-      in fNome ++ " " ++ argsStr
-    Nothing -> tirarEspacos ladoDireito
+     else case detectFunctionCall rightSide of
+    Just (fName, argsTxt) ->
+      let args = splitArguments argsTxt 0 "" []
+          formattedArgs = map formatArgument args
+          argsStr = unwords formattedArgs
+      in fName ++ " " ++ argsStr
+    Nothing -> trimSpaces rightSide
 
--- Formata cada argumento do lado direito, aplicando recursão se for chamada de função
-formatarArgumento :: String -> String
-formatarArgumento arg =
-  case detectarChamadaFuncao arg of
-    Just _ -> "(" ++ formatarLadoDireito arg ++ ")"
-    Nothing -> tirarEspacos arg
+-- formats each argument on the right side, applying recursion if it's a function call
+formatArgument :: String -> String
+formatArgument arg =
+  case detectFunctionCall arg of
+    Just _ -> "(" ++ formatRightSide arg ++ ")"
+    Nothing -> trimSpaces arg
 
-
--- ==================================================================================
--- =  FUNÇÕES SUPORTE                                                               =
--- ==================================================================================
-
--- Detectar operador na lista
-detectaOperador :: String -> Maybe String
-detectaOperador str =
-  let listaOperadoresPossiveis = ["==", "/=", ">=", "<=", ">", "<"]
-  in case filter (`isInfixOf` str) listaOperadoresPossiveis of
-    (operador:_) -> Just operador
+-- detects operator in the list
+detectOperator :: String -> Maybe String
+detectOperator str =
+  let possibleOperators = ["==", "/=", ">=", "<=", ">", "<"]
+  in case filter (`isInfixOf` str) possibleOperators of
+    (operator:_) -> Just operator
     []     -> Nothing
 
--- Divide a string da anotação nos dois lados em torno do operador, removendo o operador do resultado
-dividirPorOperador :: String -> String -> (String, String)
-dividirPorOperador texto operador = procurar "" texto
+-- splits the annotation string into two sides around the operator, removing the operator from the result
+splitByOperator :: String -> String -> (String, String)
+splitByOperator text operator = search "" text
   where
-    procurar :: String -> String -> (String, String)
-    procurar antes [] = (antes, "")  -- chegou ao fim sem encontrar
-    procurar antes resto
-      | operador `isPrefixOf` resto = (antes, drop (length operador) resto)  -- encontrou
-      | otherwise = procurar (antes ++ [head resto]) (tail resto)  -- continua procurando
+    search :: String -> String -> (String, String)
+    search before [] = (before, "")
+    search before rest
+      | operator `isPrefixOf` rest = (before, drop (length operator) rest)
+      | otherwise = search (before ++ [head rest]) (tail rest)
 
-argumentosParaTupla :: String -> String
-argumentosParaTupla s = intercalate ", " (parseArgs s)
+argumentsToTuple :: String -> String
+argumentsToTuple s = intercalate ", " (parseArgs s)
 
--- Usa de tirarEspaços para todo elemento do argumento
+-- uses trimSpaces for every argument element
 parseArgs :: String -> [String]
-parseArgs input = map tirarEspacos (separarPorVirgula input)
+parseArgs input = map trimSpaces (splitByComma input)
   where
-    separarPorVirgula :: String -> [String]
-    separarPorVirgula [] = [""]
-    separarPorVirgula (c:cs)
-      | c == ','  = "":resto
-      | otherwise = (c : head resto) : tail resto
+    splitByComma :: String -> [String]
+    splitByComma [] = [""]
+    splitByComma (c:cs)
+      | c == ','  = "":rest
+      | otherwise = (c : head rest) : tail rest
       where
-        resto = separarPorVirgula cs
+        rest = splitByComma cs
 
-
--- Retira os espaços de uma string
-tirarEspacos :: String -> String
-tirarEspacos s = tiraFim (tiraInicio s)
+-- removes spaces from a string
+trimSpaces :: String -> String
+trimSpaces s = trimEnd (trimStart s)
   where
-    tiraInicio :: String -> String
-    tiraInicio = dropWhile isSpace
+    trimStart :: String -> String
+    trimStart = dropWhile isSpace
 
-    tiraFim :: String -> String
-    tiraFim str = reverse (dropWhile isSpace (reverse str))
+    trimEnd :: String -> String
+    trimEnd str = reverse (dropWhile isSpace (reverse str))
 
-
--- Detecta variáveis
--- Se é tudo letra (alfabeto), retorna True
-isVariavel :: String -> Bool
-isVariavel [] = False
-isVariavel s  = all isAlpha s
--- Limitações: "0,1,2,3,4,5,6,7,8,9", "_", "-"
+-- detects variables, if all letters (alphabet), returns True
+isVariable :: String -> Bool
+isVariable [] = False
+isVariable s  = all isAlpha s
+-- limitations: "0,1,2,3,4,5,6,7,8,9", "_", "-"
