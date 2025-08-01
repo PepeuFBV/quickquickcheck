@@ -78,10 +78,6 @@ It has to be done through `stack exec` because the project depends on the `hint`
 > 
 > export PATH="$HOME/.local/bin:$PATH"
 
-## AI usage
-
-AI was used to help writting this README file, as well as to help understanding the process of making this project an executable Haskell program and understanding how the `hint` library works and should be used in conjunction with `QuickCheck`.
-
 ## Contributing
 
 For contributions, please fork the repository and submit a pull request. Contributions are welcome, whether it's fixing bugs, improving documentation, or adding new features.
