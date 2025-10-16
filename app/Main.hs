@@ -1,7 +1,7 @@
 module Main where
 
 import FileReader (fileRead)
-import QuickCheckExecute (anotacaoParaComando, executaQuickCheckComHint)
+import QuickCheckExecute (annotationToCommand, runQuickCheckWithHint)
 import System.Environment (getArgs)
 import System.IO (hFlush, stdout)
 
@@ -10,43 +10,44 @@ main = do
   args <- getArgs
   case args of
     [path] -> do
-      -- receiveAnnotationsAndFunctions path
-      transformaEmQuickCheck path
-    _ -> putStrLn "Uso: quickquickcheck <arquivo.hs>"
+      -- printAnnotationsAndFunctions path
+      transformToQuickCheck path
+    _ -> putStrLn "Usage: quickquickcheck <file.hs>"
 
--- Apenas imprime o conteúdo lido (opcional)
-receiveAnnotationsAndFunctions :: FilePath -> IO ()
-receiveAnnotationsAndFunctions path = do
+-- just prints the read content (optional)
+printAnnotationsAndFunctions :: FilePath -> IO ()
+printAnnotationsAndFunctions path = do
   result <- fileRead path
   case result of
     Left err -> putStrLn $ "Error: " ++ err
     Right fileLine -> mapM_ print fileLine
 
--- Para cada função e suas anotações, gera e executa o quickCheck
-transformaEmQuickCheck :: FilePath -> IO ()
-transformaEmQuickCheck path = do
+-- for each function and its annotations, generates and runs quickCheck
+transformToQuickCheck :: FilePath -> IO ()
+transformToQuickCheck path = do
   result <- fileRead path
   case result of
     Left err -> putStrLn $ "Error: " ++ err
-    Right funcoesEAnotacoes -> printFunctions funcoesEAnotacoes
+    Right functionsAndAnnotations -> printFunctions functionsAndAnnotations
   where
     printFunctions [] = return ()
-    printFunctions [lastFunc] = processFunction lastFunc  -- sem linha vazia extra após a última função
+    printFunctions [lastFunc] = processFunction lastFunc  -- no extra blank line after the last function
     printFunctions (f:fs) = do
       processFunction f
-      putStrLn ""  -- linha vazia
+      putStrLn ""  -- blank line
       printFunctions fs
 
     processFunction :: (String, [String]) -> IO ()
     processFunction (funcSig, annotations) = do
-        putStrLn $ "Função: " ++ funcSig
+        putStrLn $ "Function: " ++ funcSig
         mapM_ processAnnotation annotations
-        hFlush stdout -- Garante que a saída seja impressa imediatamente
+        hFlush stdout -- ensures output is printed immediately
 
     processAnnotation :: String -> IO ()
     processAnnotation ann = do
-      -- gera o comando QuickCheck usando sua função com a nova lógica
-      let cmd = anotacaoParaComando ann
-      putStrLn $ "  Executando: " ++ cmd
-      executaQuickCheckComHint path cmd
-      putStrLn ""  -- Sempre imprime uma linha vazia após cada teste
+      -- generates the QuickCheck command using your function with the new logic
+      let cmd = annotationToCommand ann
+      putStrLn $ "  Running: " ++ cmd
+      runQuickCheckWithHint path cmd
+      putStrLn ""  -- always prints a blank line after each test
+      

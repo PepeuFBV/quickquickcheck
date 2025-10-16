@@ -55,3 +55,4 @@ isFunction line =
   case words line of
     (name : second : rest) -> not (null name) && "->" `elem` (second : rest) -- checks the normal function definition (name args -> returnType)
     _other -> False
+    

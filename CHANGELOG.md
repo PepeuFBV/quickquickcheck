@@ -33,3 +33,7 @@
 ## 0.1.4.1 -- 30/06/2025 -- Pedro Figueira
 
 * Result print fixes
+
+## 0.1.4.2 -- 04/07/2025 -- Pedro Figueira
+
+* Translation of all code files and comments to English.
